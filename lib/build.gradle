@@ -6,9 +6,13 @@
  * User Manual available at https://docs.gradle.org/7.1.1/userguide/building_java_projects.html
  */
 
+group = 'com.speedwing'
+version = '0.0.1'
+
 plugins {
     // Apply the java-library plugin for API and implementation separation.
     id 'java-library'
+    id 'maven-publish'
 }
 
 repositories {
@@ -36,6 +40,74 @@ dependencies {
 
 }
 
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
+
 test {
     useJUnit()
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            artifact(sourceJar) {
+                classifier = 'sources'
+            }
+            artifact(javadocJar) {
+                classifier = 'javadoc'
+            }
+            pom {
+                name = 'Cardano Blockchain Authentication'
+                description = 'A library to authenticate via wallets on the Cardano blockchain'
+                url = 'https://github.com/speedwing/blockchain-auth-mech-dev'
+                licenses {
+                    license {
+                        name = 'The MIT License'
+                        url = 'http://www.opensource.org/licenses/mit-license.php'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'nemo83'
+                        name = 'Giovanni'
+                        email = 'gargiulo.gianni@gmail.com'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git://github.com/speedwing/blockchain-auth-mech-dev.git'
+                    developerConnection = 'scm:git:ssh://git@github.com/speedwing/blockchain-auth-mech-dev.git'
+                    url = 'https://github.com/speedwing/blockchain-auth-mech-dev'
+                }
+            }
+        }
+    }
+
+    repositories {
+        String ossrhUsername = System.getenv('MAVEN_USER')
+        String ossrhPassword = System.getenv('MAVEN_PASSWORD')
+
+        maven {
+            def releasesRepoUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2"
+            def snapshotsRepoUrl = "https://oss.sonatype.org/content/repositories/snapshots/"
+            url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+            credentials {
+                username ossrhUsername
+                password ossrhPassword
+            }
+        }
+    }
+}
+
+signing {
+    sign publishing.publications.mavenJava
+}
+
+
+javadoc {
+    if(JavaVersion.current().isJava9Compatible()) {
+        options.addBooleanOption('html5', true)
+    }
 }
