@@ -11,3 +11,9 @@ https://datatracker.ietf.org/doc/html/rfc8037#section-3.1.2
 GPG guide
 https://central.sonatype.org/publish/requirements/gpg/
 
+Github Actions
+
+https://github.com/actions/setup-java/blob/main/docs/advanced-usage.md#Publishing-using-gradle
+
+# Mvn - Play repo bridge
+https://stackoverflow.com/questions/38483757/apache-ivy-and-local-maven-repo-how-to-handle-snapshots-built-with-maven-3

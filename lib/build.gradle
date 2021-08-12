@@ -6,14 +6,14 @@
  * User Manual available at https://docs.gradle.org/7.1.1/userguide/building_java_projects.html
  */
 
-group = 'com.speedwing'
-version = '0.0.1'
-
 plugins {
     // Apply the java-library plugin for API and implementation separation.
     id 'java-library'
     id 'maven-publish'
 }
+
+group = 'com.speedwing'
+version = '0.0.1-SNAPSHOT'
 
 repositories {
     // Use Maven Central for resolving dependencies.
@@ -40,11 +40,6 @@ dependencies {
 
 }
 
-java {
-    withJavadocJar()
-    withSourcesJar()
-}
-
 test {
     useJUnit()
 }
@@ -53,12 +48,6 @@ publishing {
     publications {
         mavenJava(MavenPublication) {
             from components.java
-            artifact(sourceJar) {
-                classifier = 'sources'
-            }
-            artifact(javadocJar) {
-                classifier = 'javadoc'
-            }
             pom {
                 name = 'Cardano Blockchain Authentication'
                 description = 'A library to authenticate via wallets on the Cardano blockchain'
@@ -98,16 +87,5 @@ publishing {
                 password ossrhPassword
             }
         }
-    }
-}
-
-signing {
-    sign publishing.publications.mavenJava
-}
-
-
-javadoc {
-    if(JavaVersion.current().isJava9Compatible()) {
-        options.addBooleanOption('html5', true)
     }
 }

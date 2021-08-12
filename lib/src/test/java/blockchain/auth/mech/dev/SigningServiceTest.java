@@ -122,8 +122,8 @@ public class SigningServiceTest {
         var vkeyBytesActual = (ByteString) CborDecoder.decode(Hex.decode(vkeyCBORHex)).get(0);
 
         // This can be used as intermediary with cbor.me
-        // var skeyHex = "";
-        // var vkeyHex = "";
+        // var skeyHex = "04927DAA27B227B379E0A7C8BC431200DDE599E76793931082C37B3ECB8A6031";
+        // var vkeyHex = "3B90CDC93BAA2A51689E6AE747DCC9EC6E3BF8F11963BCBA50036A2443C09B0B";
         // var skeyBytes = Hex.decode(skeyHex);
         // var vkeyBytes = Hex.decode(vkeyHex);
         // assertArrayEquals(skeyBytes, skeyBytesActual.getBytes());
@@ -181,6 +181,39 @@ public class SigningServiceTest {
         var ss = new SigningService();
 
         var signedMessage = ss.sign(msg, privateKey);
+
+        var outcome = ss.verify(msg, signedMessage, publicKey);
+
+        assertTrue(outcome);
+
+    }
+
+    @Test
+    public void testFive() throws CborException {
+
+        var skeyCBORHex = "582004927daa27b227b379e0a7c8bc431200dde599e76793931082c37b3ecb8a6031";
+        var vkeyCBORHex = "58203b90cdc93baa2a51689e6ae747dcc9ec6e3bf8f11963bcba50036a2443c09b0b";
+
+        var skeyBytesActual = (ByteString) CborDecoder.decode(Hex.decode(skeyCBORHex)).get(0);
+        var vkeyBytesActual = (ByteString) CborDecoder.decode(Hex.decode(vkeyCBORHex)).get(0);
+
+        var privateKey = new Ed25519PrivateKeyParameters(skeyBytesActual.getBytes(), 0);
+        var actualVekey = privateKey.generatePublicKey();
+        var publicKey = new Ed25519PublicKeyParameters(vkeyBytesActual.getBytes(), 0);
+
+        assertEquals(
+                new String(publicKey.getEncoded()),
+                new String(actualVekey.getEncoded())
+        );
+
+        var msg = new Message("ec263b59-fd3b-4ff3-b65b-d20af62cbaa2-1628785019588".getBytes(StandardCharsets.UTF_8));
+
+        var ss = new SigningService();
+
+        var signedMessage = ss.sign(msg, privateKey);
+
+        System.out.println("signed message");
+        System.out.println(new String(Hex.encode(signedMessage.getMessageBytes())));
 
         var outcome = ss.verify(msg, signedMessage, publicKey);
 
