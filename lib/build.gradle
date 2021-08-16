@@ -26,6 +26,7 @@ dependencies {
     implementation group: 'net.java.dev.jna', name: 'jna-platform', version: '5.8.0'
 
     implementation group: 'org.bouncycastle', name: 'bcprov-jdk15to18', version: '1.68'
+    implementation 'com.auth0:java-jwt:3.18.1'
 
     implementation 'com.bloxbean.cardano:cardano-client-lib:0.1.2'
 
@@ -38,11 +39,48 @@ test {
     useJUnit()
 }
 
-task fatJar(type: Jar) {
-    manifest {
-        attributes 'Main-Class': 'blockchain.auth.mech.dev.Main'
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            pom {
+                name = 'Cardano Blockchain Authentication'
+                description = 'A library to authenticate via wallets on the Cardano blockchain'
+                url = 'https://github.com/speedwing/blockchain-auth-mech-dev'
+                licenses {
+                    license {
+                        name = 'The MIT License'
+                        url = 'http://www.opensource.org/licenses/mit-license.php'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'nemo83'
+                        name = 'Giovanni'
+                        email = 'gargiulo.gianni@gmail.com'
+                    }
+                }
+                scm {
+                    connection = 'scm:git:git://github.com/speedwing/blockchain-auth-mech-dev.git'
+                    developerConnection = 'scm:git:ssh://git@github.com/speedwing/blockchain-auth-mech-dev.git'
+                    url = 'https://github.com/speedwing/blockchain-auth-mech-dev'
+                }
+            }
+        }
     }
-    baseName = project.name + '-all'
-    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
-    with jar
+
+    repositories {
+        String ossrhUsername = System.getenv('MAVEN_USER')
+        String ossrhPassword = System.getenv('MAVEN_PASSWORD')
+
+        maven {
+            def releasesRepoUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2"
+            def snapshotsRepoUrl = "https://oss.sonatype.org/content/repositories/snapshots/"
+            url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+            credentials {
+                username ossrhUsername
+                password ossrhPassword
+            }
+        }
+    }
 }
