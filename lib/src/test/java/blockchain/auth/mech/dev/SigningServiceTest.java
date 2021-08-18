@@ -206,7 +206,7 @@ public class SigningServiceTest {
                 new String(actualVekey.getEncoded())
         );
 
-        var msg = new Message("ec263b59-fd3b-4ff3-b65b-d20af62cbaa2-1628785019588".getBytes(StandardCharsets.UTF_8));
+        var msg = new Message("a7b203f4-e6c3-475a-9725-bfb2588a27c9-1629299352163".getBytes(StandardCharsets.UTF_8));
 
         var ss = new SigningService();
 

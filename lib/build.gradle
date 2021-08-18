@@ -30,6 +30,8 @@ dependencies {
 
     implementation 'com.bloxbean.cardano:cardano-client-lib:0.1.2'
 
+    compile 'info.picocli:picocli:4.6.1'
+
     // Use JUnit test framework.
     testImplementation 'junit:junit:4.13.2'
 
@@ -83,4 +85,13 @@ publishing {
             }
         }
     }
+}
+
+task fatJar(type: Jar) {
+    manifest {
+        attributes 'Main-Class': 'blockchain.auth.mech.dev.Main'
+    }
+    baseName = project.name + '-all'
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
 }
