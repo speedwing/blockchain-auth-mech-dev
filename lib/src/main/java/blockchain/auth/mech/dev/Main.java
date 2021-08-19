@@ -44,8 +44,11 @@ public class Main implements Callable<Integer> {
     public Integer call() throws Exception {
         var skeyBytesActual = (ByteString) CborDecoder.decode(Hex.decode(signingKey)).get(0);
         var signService = new SigningService();
-        var signedText = signService.sign(new Message(message), new Ed25519PrivateKeyParameters(skeyBytesActual.getBytes(), 0));
-        System.out.println(new String(Hex.encode(signedText.getMessageBytes())));
+        var privateKey = new Ed25519PrivateKeyParameters(skeyBytesActual.getBytes(), 0);
+        var signedText = signService.sign(new Message(message), privateKey);
+        var publicKey = privateKey.generatePublicKey();
+        System.out.printf("Public Key: %s\n", new String(publicKey.getEncoded()));
+        System.out.printf("Signed Message: %s\n", new String(Hex.encode(signedText.getMessageBytes())));
         return 0;
     }
 }
