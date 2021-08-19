@@ -89,7 +89,7 @@ publishing {
 
 task fatJar(type: Jar) {
     manifest {
-        attributes 'Main-Class': 'blockchain.auth.mech.dev.Main'
+        attributes 'Main-Class': 'blockchain.auth.mech.dev.cli.Main'
     }
     baseName = project.name + '-all'
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } } {

@@ -7,6 +7,8 @@ Development project for the Cardano Catalyst proposal [Blockchain Auth Mechanism
 
 https://datatracker.ietf.org/doc/html/rfc8037#section-3.1.2
 
+https://datatracker.ietf.org/doc/html/rfc7519#page-9
+
 
 GPG guide
 https://central.sonatype.org/publish/requirements/gpg/
