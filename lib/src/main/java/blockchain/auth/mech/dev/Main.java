@@ -9,6 +9,7 @@ import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
 import picocli.CommandLine.Parameters;
 
+import java.io.ByteArrayInputStream;
 import java.util.concurrent.Callable;
 
 @Command(name = "signer", mixinStandardHelpOptions = true, version = "checksum 4.0",
@@ -26,29 +27,17 @@ public class Main implements Callable<Integer> {
         System.exit(exitCode);
     }
 
-    public static void main1(String[] args) {
-
-        var message = args[0];
-        var privateKeyHex = args[1];
-
-        var privateKeyBytes = Hex.decode(privateKeyHex);
-
-        var signService = new SigningService();
-        var signedText = signService.sign(new Message(message), new Ed25519PrivateKeyParameters(privateKeyBytes, 0));
-
-        System.out.println(new String(Hex.encode(signedText.getMessageBytes())));
-
-    }
-
     @Override
     public Integer call() throws Exception {
-        var skeyBytesActual = (ByteString) CborDecoder.decode(Hex.decode(signingKey)).get(0);
+        var skeyBytesActual = (ByteString) new CborDecoder(new ByteArrayInputStream(Hex.decode(signingKey))).decode().get(0);
         var signService = new SigningService();
         var privateKey = new Ed25519PrivateKeyParameters(skeyBytesActual.getBytes(), 0);
-        var signedText = signService.sign(new Message(message), privateKey);
-        var publicKey = privateKey.generatePublicKey();
-        System.out.printf("Public Key: %s\n", new String(publicKey.getEncoded()));
-        System.out.printf("Signed Message: %s\n", new String(Hex.encode(signedText.getMessageBytes())));
+        var signedMessage = signService.sign(new Message(message), privateKey);
+        var publicKey = Hex.encode(privateKey.generatePublicKey().getEncoded());
+        var signedText = new String(Hex.encode(signedMessage.getMessageBytes()));
+        System.out.printf("public_key: %s\n", new String(publicKey));
+        System.out.printf("signed_message: %s\n", signedText);
         return 0;
     }
+    
 }
