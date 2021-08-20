@@ -2,7 +2,7 @@ package blockchain.auth.mech.dev.cli;
 
 import java.util.Objects;
 
-public class PaymentSkey {
+public class CardanoKey {
 
     private String type;
     private String description;
@@ -36,7 +36,7 @@ public class PaymentSkey {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        PaymentSkey that = (PaymentSkey) o;
+        CardanoKey that = (CardanoKey) o;
         return Objects.equals(type, that.type) && Objects.equals(description, that.description) && Objects.equals(cborHex, that.cborHex);
     }
 

@@ -59,30 +59,43 @@ public class Main implements Callable<Integer> {
 
         if (exclusive.paymentSkeyFile != null) {
             response = signWithPaymentSkeyFile();
-        } else if ( exclusive.paymentSkey != null){
+        } else if (exclusive.paymentSkey != null) {
             response = signWithPaymentKey();
         } else if (exclusive.vrfSkey != null) {
-            response =
+            response = signWithVrfSkey();
         } else {
-            response =
+            response = signWithVrfSkeyFile();
         }
 
         System.out.printf("public_key: %s\n", response.getPublicKey());
         System.out.printf("signed_message: %s\n", response.getSignedMessage());
         return 0;
-        
+
+    }
+
+    private Response signWithVrfSkeyFile() throws CborException, SodiumLibraryException, IOException {
+        var objectMapper = new ObjectMapper();
+        var paymentSkey = objectMapper.readValue(exclusive.vrfSkeyFile, CardanoKey.class);
+        var signingKey = paymentSkey.getCborHex();
+        return signWithVrfSkey(signingKey);
+    }
+
+    private Response signWithVrfSkey() throws SodiumLibraryException, CborException {
+        return signWithVrfSkey(exclusive.vrfSkey);
     }
 
     private Response signWithVrfSkey(String vrfSkey) throws SodiumLibraryException, CborException {
         var vrfSkeyBytes = (ByteString) new CborDecoder(new ByteArrayInputStream(Hex.decode(vrfSkey))).decode().get(0);
         var vrfSigningService = new VrfSigningService();
         var signedMessage = vrfSigningService.sign(new Message(message), vrfSkeyBytes.getBytes());
-        
+        var publicKey = new String(Hex.encode(vrfSigningService.getVrfVkey(vrfSkeyBytes.getBytes())));
+        var signedText = new String(Hex.encode(signedMessage.getMessageBytes()));
+        return new Response(signedText, publicKey);
     }
 
     private Response signWithPaymentSkeyFile() throws IOException, CborException {
         var objectMapper = new ObjectMapper();
-        var paymentSkey = objectMapper.readValue(exclusive.paymentSkeyFile, PaymentSkey.class);
+        var paymentSkey = objectMapper.readValue(exclusive.paymentSkeyFile, CardanoKey.class);
         var signingKey = paymentSkey.getCborHex();
         return signWithPaymentKey(signingKey);
     }

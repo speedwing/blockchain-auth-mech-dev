@@ -67,6 +67,23 @@ public class VrfSigningServiceTest {
 
 
     @Test
+    public void vrfVkeyFromVrfSkey() throws CborException, SodiumLibraryException {
+
+        var skeyCbor = Hex.decode("5840adb9c97bec60189aa90d01d113e3ef405f03477d82a94f81da926c90cd46a374e0ff2371508ac339431b50af7d69cde0f120d952bb876806d3136f9a7fda4381");
+        var vrfSkey = (ByteString) CborDecoder.decode(skeyCbor).get(0);
+
+        var vkeyCbor = Hex.decode("5820e0ff2371508ac339431b50af7d69cde0f120d952bb876806d3136f9a7fda4381");
+        var vrfVkey = (ByteString) CborDecoder.decode(vkeyCbor).get(0);
+
+        var vrfSigningService = new VrfSigningService();
+
+        var actualVrfVkey = vrfSigningService.getVrfVkey(vrfSkey.getBytes());
+
+        Assert.assertArrayEquals(vrfVkey.getBytes(), actualVrfVkey);
+
+    }
+
+    @Test
     public void testVrfSigningService() throws CborException, SodiumLibraryException {
 
         var skeyCbor = Hex.decode("5840adb9c97bec60189aa90d01d113e3ef405f03477d82a94f81da926c90cd46a374e0ff2371508ac339431b50af7d69cde0f120d952bb876806d3136f9a7fda4381");

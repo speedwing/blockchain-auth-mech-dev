@@ -24,4 +24,8 @@ public class VrfSigningService {
         return Arrays.equals(signatureHash, verification);
     }
 
+    public byte[] getVrfVkey(byte[] skey) throws SodiumLibraryException {
+        return SodiumLibrary.cryptoVrfSkeyToVkey(skey);
+    }
+
 }
