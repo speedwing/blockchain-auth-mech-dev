@@ -2,9 +2,12 @@ package blockchain.auth.mech.dev.cli;
 
 import blockchain.auth.mech.dev.Message;
 import blockchain.auth.mech.dev.SigningService;
+import blockchain.auth.mech.dev.VrfSigningService;
 import co.nstant.in.cbor.CborDecoder;
+import co.nstant.in.cbor.CborException;
 import co.nstant.in.cbor.model.ByteString;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.muquit.libsodiumjna.exceptions.SodiumLibraryException;
 import org.bouncycastle.crypto.params.Ed25519PrivateKeyParameters;
 import org.bouncycastle.util.encoders.Hex;
 import picocli.CommandLine;
@@ -14,6 +17,7 @@ import picocli.CommandLine.Parameters;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.IOException;
 import java.util.concurrent.Callable;
 
 @Command(name = "signer", mixinStandardHelpOptions = true, version = "checksum 4.0",
@@ -28,11 +32,17 @@ public class Main implements Callable<Integer> {
 
     static class Exclusive {
 
-        @Option(names = {"-k", "--payment-skey"}, required = true, description = "Payment skey HEX", arity = "0..1")
-        String signingKey;
+        @Option(names = {"--payment-skey"}, required = true, description = "Payment skey HEX", arity = "0..1")
+        String paymentSkey;
 
-        @Option(names = {"-f", "--payment-skey-file"}, required = true, description = "Payment skey file", arity = "0..1")
+        @Option(names = {"--payment-skey-file"}, required = true, description = "Payment skey file", arity = "0..1")
         File paymentSkeyFile;
+
+        @Option(names = {"--vrf-skey"}, required = true, description = "VRF skey HEX", arity = "0..1")
+        String vrfSkey;
+
+        @Option(names = {"--vrf-skey-file"}, required = true, description = "VRF skey file", arity = "0..1")
+        File vrfSkeyFile;
 
     }
 
@@ -45,26 +55,50 @@ public class Main implements Callable<Integer> {
     @Override
     public Integer call() throws Exception {
 
-        String signingKey;
+        Response response;
 
         if (exclusive.paymentSkeyFile != null) {
-            var objectMapper = new ObjectMapper();
-            var paymentSkey = objectMapper.readValue(exclusive.paymentSkeyFile, PaymentSkey.class);
-            signingKey = paymentSkey.getCborHex();
+            response = signWithPaymentSkeyFile();
+        } else if ( exclusive.paymentSkey != null){
+            response = signWithPaymentKey();
+        } else if (exclusive.vrfSkey != null) {
+            response =
         } else {
-            signingKey = exclusive.signingKey;
+            response =
         }
 
-        var skeyBytesActual = (ByteString) new CborDecoder(new ByteArrayInputStream(Hex.decode(signingKey))).decode().get(0);
+        System.out.printf("public_key: %s\n", response.getPublicKey());
+        System.out.printf("signed_message: %s\n", response.getSignedMessage());
+        return 0;
+        
+    }
+
+    private Response signWithVrfSkey(String vrfSkey) throws SodiumLibraryException, CborException {
+        var vrfSkeyBytes = (ByteString) new CborDecoder(new ByteArrayInputStream(Hex.decode(vrfSkey))).decode().get(0);
+        var vrfSigningService = new VrfSigningService();
+        var signedMessage = vrfSigningService.sign(new Message(message), vrfSkeyBytes.getBytes());
+        
+    }
+
+    private Response signWithPaymentSkeyFile() throws IOException, CborException {
+        var objectMapper = new ObjectMapper();
+        var paymentSkey = objectMapper.readValue(exclusive.paymentSkeyFile, PaymentSkey.class);
+        var signingKey = paymentSkey.getCborHex();
+        return signWithPaymentKey(signingKey);
+    }
+
+    private Response signWithPaymentKey() throws CborException {
+        return signWithPaymentKey(exclusive.paymentSkey);
+    }
+
+    private Response signWithPaymentKey(String paymentSkey) throws CborException {
+        var skeyBytesActual = (ByteString) new CborDecoder(new ByteArrayInputStream(Hex.decode(paymentSkey))).decode().get(0);
         var signService = new SigningService();
         var privateKey = new Ed25519PrivateKeyParameters(skeyBytesActual.getBytes(), 0);
         var signedMessage = signService.sign(new Message(message), privateKey);
-        var publicKey = Hex.encode(privateKey.generatePublicKey().getEncoded());
+        var publicKey = new String(Hex.encode(privateKey.generatePublicKey().getEncoded()));
         var signedText = new String(Hex.encode(signedMessage.getMessageBytes()));
-        System.out.printf("public_key: %s\n", new String(publicKey));
-        System.out.printf("signed_message: %s\n", signedText);
-        return 0;
-        
+        return new Response(signedText, publicKey);
     }
 
 }

@@ -18,6 +18,7 @@ version = '0.0.1-SNAPSHOT'
 repositories {
     // Use Maven Central for resolving dependencies.
     mavenCentral()
+    mavenLocal()
 }
 
 dependencies {
@@ -25,12 +26,10 @@ dependencies {
     implementation group: 'net.java.dev.jna', name: 'jna', version: '5.8.0'
     implementation group: 'net.java.dev.jna', name: 'jna-platform', version: '5.8.0'
 
-
-    implementation 'com.auth0:java-jwt:3.18.1'
-
     compile 'com.bloxbean.cardano:cardano-client-lib:0.1.2'
     compile 'info.picocli:picocli:4.6.1'
     compile group: 'org.bouncycastle', name: 'bcprov-jdk15to18', version: '1.68'
+    compile 'com.muquit.libsodiumjna:libsodium-jna:1.1.0-IOG-SNAPSHOT'
 
     // Use JUnit test framework.
     testImplementation 'junit:junit:4.13.2'
