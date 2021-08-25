@@ -56,19 +56,27 @@ public class Main implements Callable<Integer> {
     public Integer call() throws Exception {
 
         Response response;
+        String keyType;
 
         if (exclusive.paymentSkeyFile != null) {
             response = signWithPaymentSkeyFile();
+            keyType = "payment";
         } else if (exclusive.paymentSkey != null) {
             response = signWithPaymentKey();
+            keyType = "payment";
         } else if (exclusive.vrfSkey != null) {
             response = signWithVrfSkey();
+            keyType = "vrf";
         } else {
             response = signWithVrfSkeyFile();
+            keyType = "vrf";
         }
 
         System.out.printf("public_key: %s\n", response.getPublicKey());
         System.out.printf("signed_message: %s\n", response.getSignedMessage());
+        System.out.println();
+        System.out.printf("curl -X POST -H 'Content-Type: application/json' -d'{\"message\": \"%s\", \"signed_message\": \"%s\", \"public_key\": \"%s\", \"signature_type\": \"%s\"}' http://localhost:9000/auth\n", message, response.getSignedMessage(), response.getPublicKey(), keyType);
+
         return 0;
 
     }
