@@ -9,6 +9,8 @@ import co.nstant.in.cbor.model.ByteString;
 import com.muquit.libsodiumjna.SodiumLibrary;
 import com.muquit.libsodiumjna.exceptions.SodiumLibraryException;
 import org.bouncycastle.crypto.CryptoException;
+import org.bouncycastle.jcajce.provider.digest.Blake2b;
+import org.bouncycastle.util.Arrays;
 import org.bouncycastle.util.encoders.Hex;
 import org.junit.Assert;
 import org.junit.Test;
@@ -103,6 +105,62 @@ public class VrfSigningServiceTest {
         System.out.printf("Verified? %s\n", outcome);
 
         Assert.assertTrue(outcome);
+
+    }
+
+
+    @Test
+    public void abSigning() throws CborException, SodiumLibraryException {
+
+        var expectedChallenge = "363336393730326433303330333233323733373436313662363536323666363137323634326536653635373465623437383230653137633866636164326438303638663133316337333736613562346638643462653134616538386330643630386133646231643365376162";
+
+        var expectedSignature = "393b4d81cec5dbc9b937c7f507c379b780960c13a01751543b08909535567fea2000903d3fb8c9ac6438cbe05d0cf19c5ba79f7c03011654e50b36fa761605a68540c9ca01aeda46967b397f958fd104";
+
+
+        var skeyCbor = Hex.decode("5840ee9c48fc2052cea8852ada1b6d1e86220b52cc70b3a327185dbd7682315ff457929802bef330af23939eea07e8d398481f66496f55a70be3fb767727057bc28e");
+        var vrfSkey = (ByteString) CborDecoder.decode(skeyCbor).get(0);
+
+//        var vkeyCbor = Hex.decode("58207d6299d211a7d6a885d82148cb9e3d496615eeb25904b560d1c84493e1aa913f");
+//        var vrfVkey = (ByteString) CborDecoder.decode(vkeyCbor).get(0);
+//
+        var vrfSigningService = new VrfSigningService();
+//
+//        var actualVrfVkey = vrfSigningService.getVrfVkey(vrfSkey.getBytes());
+//
+//        Assert.assertArrayEquals(vrfVkey.getBytes(), actualVrfVkey);
+
+        var c22Bytes = Hex.encode("cip-0022".getBytes());
+        var domainBytes = Hex.encode("stakeboard.net".getBytes());
+        var bar = "eb47820e17c8fcad2d8068f131c7376a5b4f8d4be14ae88c0d608a3db1d3e7ab";
+
+        var prefix = Arrays.concatenate(c22Bytes, domainBytes);
+        var messageBytes = Arrays.concatenate(prefix, bar.getBytes());
+
+        var actualChallenge = Hex.toHexString(messageBytes);
+
+        System.out.println(expectedChallenge);
+        System.out.println(actualChallenge);
+
+        Assert.assertEquals(expectedChallenge, actualChallenge);
+
+        System.out.println("equals!");
+
+        var blake = new Blake2b.Blake2b256();
+        blake.update(Hex.decode(messageBytes));
+
+        var digest = blake.digest();
+
+//        blake.digest();
+
+        System.out.println(Hex.toHexString(digest));
+
+        var expectedDigest = "37abecf95fd99bceeb570b71c9da7ac72d7ea4ca0fcd44ff979517300d004192";
+//        var expectedDigest = "7cbdfd3dad7e964008881bd30d2651339a538ae88d5fb05b30097f3b5baadab4";
+
+
+        var signature = SodiumLibrary.cryptoVrfProve(vrfSkey.getBytes(), messageBytes);
+
+        System.out.println(new String(Hex.encode(signature)));
 
     }
 
