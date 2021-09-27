@@ -1,5 +1,6 @@
-package blockchain.auth.mech.dev;
+package blockchain.auth.mech.signing.wallet;
 
+import blockchain.auth.mech.signing.wallet.Message;
 import org.bouncycastle.crypto.params.Ed25519PrivateKeyParameters;
 import org.bouncycastle.crypto.params.Ed25519PublicKeyParameters;
 import org.bouncycastle.crypto.signers.Ed25519Signer;

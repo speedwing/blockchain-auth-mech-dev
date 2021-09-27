@@ -1,4 +1,4 @@
-package blockchain.auth.mech.dev.cli;
+package blockchain.auth.mech.cli;
 
 import java.util.Objects;
 

@@ -1,5 +1,6 @@
-package blockchain.auth.mech.dev;
+package blockchain.auth.mech;
 
+import blockchain.auth.mech.signing.RandomStringGeneration;
 import org.junit.Assert;
 import org.junit.Test;
 

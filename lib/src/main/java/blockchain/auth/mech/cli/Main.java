@@ -1,8 +1,8 @@
-package blockchain.auth.mech.dev.cli;
+package blockchain.auth.mech.cli;
 
-import blockchain.auth.mech.dev.Message;
-import blockchain.auth.mech.dev.SigningService;
-import blockchain.auth.mech.dev.VrfSigningService;
+import blockchain.auth.mech.signing.stakepool.VrfSigningService;
+import blockchain.auth.mech.signing.wallet.Message;
+import blockchain.auth.mech.signing.wallet.SigningService;
 import co.nstant.in.cbor.CborDecoder;
 import co.nstant.in.cbor.CborException;
 import co.nstant.in.cbor.model.ByteString;
@@ -46,6 +46,8 @@ public class Main implements Callable<Integer> {
 
     }
 
+    @Option(names = {"--domain"}, required = true, description = "domain for the vrf verification", arity = "0..1")
+    String domain;
 
     public static void main(String[] args) {
         int exitCode = new CommandLine(new Main()).execute(args);
@@ -95,7 +97,7 @@ public class Main implements Callable<Integer> {
     private Response signWithVrfSkey(String vrfSkey) throws SodiumLibraryException, CborException {
         var vrfSkeyBytes = (ByteString) new CborDecoder(new ByteArrayInputStream(Hex.decode(vrfSkey))).decode().get(0);
         var vrfSigningService = new VrfSigningService();
-        var signedMessage = vrfSigningService.sign(new Message(message), vrfSkeyBytes.getBytes());
+        var signedMessage = vrfSigningService.sign(new Message(message), domain, vrfSkeyBytes.getBytes());
         var publicKey = new String(Hex.encode(vrfSigningService.getVrfVkey(vrfSkeyBytes.getBytes())));
         var signedText = new String(Hex.encode(signedMessage.getMessageBytes()));
         return new Response(signedText, publicKey);
