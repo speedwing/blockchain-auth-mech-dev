@@ -3,8 +3,7 @@
  */
 package blockchain.auth.mech.signing.wallet;
 
-import blockchain.auth.mech.signing.wallet.Message;
-import blockchain.auth.mech.signing.wallet.SigningService;
+import blockchain.auth.mech.signing.Message;
 import co.nstant.in.cbor.CborDecoder;
 import co.nstant.in.cbor.CborException;
 import co.nstant.in.cbor.model.ByteString;

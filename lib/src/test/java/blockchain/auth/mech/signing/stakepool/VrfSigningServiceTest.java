@@ -3,7 +3,7 @@
  */
 package blockchain.auth.mech.signing.stakepool;
 
-import blockchain.auth.mech.signing.wallet.Message;
+import blockchain.auth.mech.signing.Message;
 import co.nstant.in.cbor.CborDecoder;
 import co.nstant.in.cbor.CborException;
 import co.nstant.in.cbor.model.ByteString;
@@ -15,6 +15,8 @@ import org.bouncycastle.util.Arrays;
 import org.bouncycastle.util.encoders.Hex;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.io.ByteArrayInputStream;
 
 public class VrfSigningServiceTest {
 
@@ -209,6 +211,21 @@ public class VrfSigningServiceTest {
         var signatore2 = vrfSigningService.sign(new Message(nonce), "stakeboard.net", vrfSkey.getBytes());
 
         Assert.assertEquals(expectedSignature, Hex.toHexString(signatore2.getMessageBytes()));
+
+    }
+
+    @Test
+    public void testHashVrfVkey() throws CborException, SodiumLibraryException {
+
+        var vrfSigningService = new VrfSigningService();
+
+        var expectedVrfKeyHash = "7ca5cff9416b219cf71df65e78dada646a12ff04938beb04e3c9d7891ac2f055";
+
+        var vrfVkeyBytes = (ByteString) new CborDecoder(new ByteArrayInputStream(Hex.decode("58207d6299d211a7d6a885d82148cb9e3d496615eeb25904b560d1c84493e1aa913f"))).decode().get(0);
+
+        var hashedVrfVKeyBytes = SodiumLibrary.cryptoBlake2bHash(vrfVkeyBytes.getBytes(), null);
+
+        Assert.assertEquals(Hex.toHexString(hashedVrfVKeyBytes), expectedVrfKeyHash);
 
     }
 

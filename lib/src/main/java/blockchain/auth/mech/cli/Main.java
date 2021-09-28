@@ -1,7 +1,7 @@
 package blockchain.auth.mech.cli;
 
 import blockchain.auth.mech.signing.stakepool.VrfSigningService;
-import blockchain.auth.mech.signing.wallet.Message;
+import blockchain.auth.mech.signing.Message;
 import blockchain.auth.mech.signing.wallet.SigningService;
 import co.nstant.in.cbor.CborDecoder;
 import co.nstant.in.cbor.CborException;

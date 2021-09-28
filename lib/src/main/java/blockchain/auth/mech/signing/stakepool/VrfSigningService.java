@@ -1,6 +1,6 @@
 package blockchain.auth.mech.signing.stakepool;
 
-import blockchain.auth.mech.signing.wallet.Message;
+import blockchain.auth.mech.signing.Message;
 import com.muquit.libsodiumjna.SodiumLibrary;
 import com.muquit.libsodiumjna.exceptions.SodiumLibraryException;
 import org.bouncycastle.util.encoders.Hex;
