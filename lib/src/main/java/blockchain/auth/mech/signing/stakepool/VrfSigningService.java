@@ -12,7 +12,11 @@ public class VrfSigningService {
     private static final String CIP_0022 = "cip-0022";
 
     public VrfSigningService() {
-        SodiumLibrary.setLibraryPath("/usr/local/lib/libsodium.dylib");
+        this("/usr/local/lib/libsodium.dylib");
+    }
+
+    public VrfSigningService(String libsodiumPath) {
+        SodiumLibrary.setLibraryPath(libsodiumPath);
     }
 
     public Message sign(Message message, String domain, byte[] vrfSkey) throws SodiumLibraryException {
