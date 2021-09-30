@@ -3,14 +3,18 @@
  */
 package blockchain.auth.mech.signing;
 
-import java.util.Date;
-import java.util.UUID;
+import org.bouncycastle.util.encoders.Hex;
+
+import java.util.Random;
 
 public class RandomStringGeneration {
 
+    private final Random random = new Random();
+
     public String createRandomString() {
-        var timestampInMillis = new Date().getTime();
-        return String.format("%s-%d", UUID.randomUUID(), timestampInMillis);
+        var bytes = new byte[32];
+        random.nextBytes(bytes);
+        return Hex.toHexString(bytes);
     }
 
 }
